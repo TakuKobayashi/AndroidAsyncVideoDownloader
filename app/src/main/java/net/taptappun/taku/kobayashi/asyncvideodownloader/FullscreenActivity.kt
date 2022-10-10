@@ -1,17 +1,19 @@
 package net.taptappun.taku.kobayashi.asyncvideodownloader
 
-import androidx.appcompat.app.AppCompatActivity
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.MotionEvent
+import android.util.Log
 import android.view.View
 import android.view.WindowInsets
-import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.yausername.youtubedl_android.DownloadProgressCallback
+import com.yausername.youtubedl_android.YoutubeDL
+import com.yausername.youtubedl_android.YoutubeDLException
+import com.yausername.youtubedl_android.YoutubeDLRequest
 import net.taptappun.taku.kobayashi.asyncvideodownloader.databinding.ActivityFullscreenBinding
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -56,6 +58,19 @@ class FullscreenActivity : AppCompatActivity() {
         // Set up the user interaction to manually show or hide the system UI.
         fullscreenContent = binding.fullscreenContent
         fullscreenContent.setOnClickListener { toggle() }
+
+        try {
+            YoutubeDL.getInstance().init(this)
+        } catch (e: YoutubeDLException) {
+            Log.e("AsyncVideoDownloader", "failed to initialize youtubedl-android", e)
+        }
+
+        val request = YoutubeDLRequest("https://youtu.be/Pv61yEcOqpw")
+        val streamInfo = YoutubeDL.getInstance().getInfo(request)
+        YoutubeDL.getInstance().execute(request,
+            DownloadProgressCallback { progress: Float, etaInSeconds: Long, message: String ->
+                Log.d("AsyncVideoDownloader", "$progress% (ETA $etaInSeconds seconds)")
+            })
 
         hide()
     }
